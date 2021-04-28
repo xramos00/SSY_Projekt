@@ -61,13 +61,13 @@
 #include "nwkSecurity.h"
 #include "nwkRouteDiscovery.h"
 #include "halUart.h"
+#include "main.h"
 
 /*- Definitions ------------------------------------------------------------*/
 #define NWK_RX_DUPLICATE_REJECTION_TIMER_INTERVAL   100 // ms
 #define DUPLICATE_REJECTION_TTL \
             ((NWK_DUPLICATE_REJECTION_TTL / NWK_RX_DUPLICATE_REJECTION_TIMER_INTERVAL) + 1)
 #define NWK_SERVICE_ENDPOINT_ID    0
-
 /*- Types ------------------------------------------------------------------*/
 enum
 {
@@ -95,6 +95,8 @@ static bool nwkRxServiceDataInd(NWK_DataInd_t *ind);
 static NwkDuplicateRejectionEntry_t nwkRxDuplicateRejectionTable[NWK_DUPLICATE_REJECTION_TABLE_SIZE];
 static uint8_t nwkRxAckControl;
 static SYS_Timer_t nwkRxDuplicateRejectionTimer;
+
+int guard = -1;
 
 /*- Implementations --------------------------------------------------------*/
 
@@ -289,20 +291,52 @@ static bool nwkRxServiceDataInd(NWK_DataInd_t *ind)
   }
 }
 
+void num2str(uint16_t num)
+{
+	char buffer[6] = {'0'};
+	volatile uint16_t num1 = num;
+	//buffer[18] = '\0';
+	sprintf(buffer,"%u",num);
+	UART_SendString(buffer);
+}
+
 /*************************************************************************//**
 *****************************************************************************/
 static void nwkRxHandleReceivedFrame(NwkFrame_t *frame)
 {
+	
   NwkFrameHeader_t *header = &frame->header;
-HAL_UartWriteByte((uint8_t)13);
-  HAL_UartWriteByte((uint8_t)10);
   frame->state = NWK_RX_STATE_FINISH;
-  HAL_UartWriteByte(frame->payload[0]);
-  HAL_UartWriteByte((uint8_t)13);
-  HAL_UartWriteByte((uint8_t)10);
-  HAL_UartWriteByte((uint8_t)(header->nwkDstAddr));
-  HAL_UartWriteByte((uint8_t)13);
-  HAL_UartWriteByte((uint8_t)10);
+  
+  if (guard == header->macSeq)
+  {
+	  return;
+  }
+  else
+  {
+	  guard = header->macSeq;
+  }
+ //"macFcf,macSeq,macDstPanId,macDstAddr,macSrcAddr,nwkSeq,nwkSrcAddr,nwkDstAddr,PAYLOAD\r\n" 
+  num2str((uint16_t)header->macFcf);
+  UART_SendChar(',');
+  num2str((uint16_t)header->macSeq);
+  UART_SendChar(',');
+	num2str((uint16_t)header->macDstPanId);
+	UART_SendChar(',');
+	num2str((uint16_t)header->macDstAddr);
+	UART_SendChar(',');
+	num2str((uint16_t)header->macSrcAddr);
+	UART_SendChar(',');
+	num2str((uint16_t)header->nwkSeq);
+	UART_SendChar(',');
+	num2str((uint16_t)header->nwkSrcAddr);
+	UART_SendChar(',');
+	num2str((uint16_t)header->nwkDstAddr);
+	UART_SendChar(',');
+	UART_SendChar(frame->payload[0]);
+	UART_SendChar('\r');
+	UART_SendChar('\n');
+
 return;
 #ifndef NWK_ENABLE_SECURITY
   if (header->nwkFcf.security)

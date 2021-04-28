@@ -185,13 +185,35 @@ break;
 }
 }
 
+void sendString( char * str)
+{
+	HAL_UartWriteByte(*str);
+	while(++str != '\0')
+	{
+		HAL_UartWriteByte(*str);
+	}
+}
+void UART_SendChar(uint8_t data)
+{
+	while ( !( UCSR1A & (1<<UDRE0)) )
+	;
+	UDR1 = data;
+}
+
+void UART_SendString(char *text){
+	while (*text != 0x00)
+	{
+		UART_SendChar(*text);
+		text++;
+	}
+}
 /*************************************************************************//**
 *****************************************************************************/
 int main(void)
 {
 SYS_Init();
 HAL_UartInit(38400);
-HAL_UartWriteByte('a');
+UART_SendString(HLAVICKA);
 for (int i = 0; i < NWK_ENDPOINTS_AMOUNT; i++)
 {
 	//HAL_UartWriteByte((uint8_t)i+65);

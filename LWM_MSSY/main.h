@@ -6,9 +6,14 @@
 */
 
 
+#define HLAVICKA "macFcf,macSeq,macDstPanId,macDstAddr,macSrcAddr,nwkSeq,nwkSrcAddr,nwkDstAddr,PAYLOAD\r\n"
+
 #ifndef MAIN_H_
 #define MAIN_H_
 
+void sendString( char * str);
+void UART_SendString(char *text);
+void UART_SendChar(uint8_t data);
 /*************PERIFERIE*******************************/
 #ifdef HAL_ATMEGA128RFA1
 #define LED0 PG5
