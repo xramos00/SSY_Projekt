@@ -6,14 +6,20 @@
 */
 
 
-#define HLAVICKA "macFcf,macSeq,macDstPanId,macDstAddr,macSrcAddr,nwkSeq,nwkSrcAddr,nwkDstAddr,PAYLOAD\r\n"
 
 #ifndef MAIN_H_
 #define MAIN_H_
 
+/* VYTVORENE V RAMCI PROJEKTU - ZACIATOK */
+// retazec ktory je vypisani na zaciatku programu cez UART
+#define HLAVICKA "macFcf,macSeq,macDstPanId,macDstAddr,macSrcAddr,nwkSeq,nwkSrcAddr,nwkDstAddr,PAYLOAD\r\n"
+
+// pomocne funkcie na vypis retazcov
 void sendString( char * str);
 void UART_SendString(char *text);
 void UART_SendChar(uint8_t data);
+/* VYTVORENE V RAMCI PROJEKTU - KONIEC */
+
 /*************PERIFERIE*******************************/
 #ifdef HAL_ATMEGA128RFA1
 #define LED0 PG5

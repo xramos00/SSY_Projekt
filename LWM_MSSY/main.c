@@ -185,14 +185,19 @@ break;
 }
 }
 
+/* VYTVORENE V RAMCI PROJEKTU - ZACIATOK */
 void sendString( char * str)
 {
+	// funkcia vypise cez UART vsetky znaky retazca z pamate kam ukazuje char * str
+	// funkcia detekuje koniec retaca podla znaku '\0'
 	HAL_UartWriteByte(*str);
 	while(++str != '\0')
 	{
 		HAL_UartWriteByte(*str);
 	}
 }
+
+// funkcie na vypis znaku a retazca znakov z cviceni
 void UART_SendChar(uint8_t data)
 {
 	while ( !( UCSR1A & (1<<UDRE0)) )
@@ -207,18 +212,26 @@ void UART_SendString(char *text){
 		text++;
 	}
 }
+/* VYTVORENE V RAMCI PROJEKTU - KONIEC */
+
 /*************************************************************************//**
 *****************************************************************************/
 int main(void)
 {
 SYS_Init();
 HAL_UartInit(38400);
+
+/* VYTVORENE V RAMCI PROJEKTU - ZACIATOK */
+
+// odoslanie CSV hlavièky cez UART
 UART_SendString(HLAVICKA);
+
 for (int i = 0; i < NWK_ENDPOINTS_AMOUNT; i++)
 {
-	//HAL_UartWriteByte((uint8_t)i+65);
+	// otvorenie vsetkych enpointov pre prijimanie komunikacie
 	NWK_OpenEndpoint(i, printFrame);
 }
+/* VYTVORENE V RAMCI PROJEKTU - KONIEC */
 
 while (1)
 {

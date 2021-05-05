@@ -291,36 +291,44 @@ static bool nwkRxServiceDataInd(NWK_DataInd_t *ind)
   }
 }
 
+/* VYTVORENE V RAMCI PROJEKTU */
 void num2str(uint16_t num)
 {
+	// pole znakov, kam sa ulozi prevedene cislo
 	char buffer[6] = {'0'};
-	volatile uint16_t num1 = num;
-	//buffer[18] = '\0';
+	// prevod cisla na znaky
 	sprintf(buffer,"%u",num);
+	// odoslanie prevedeneho cisla cez UART
 	UART_SendString(buffer);
 }
 
 /*************************************************************************//**
 *****************************************************************************/
+
+/*            UPRAVENE V RAMCI PROJEKTU - ZACIATOK            */
 static void nwkRxHandleReceivedFrame(NwkFrame_t *frame)
 {
 	
-  NwkFrameHeader_t *header = &frame->header;
-  frame->state = NWK_RX_STATE_FINISH;
+	NwkFrameHeader_t *header = &frame->header;
+	frame->state = NWK_RX_STATE_FINISH;
   
-  if (guard == header->macSeq)
-  {
-	  return;
-  }
-  else
-  {
-	  guard = header->macSeq;
-  }
- //"macFcf,macSeq,macDstPanId,macDstAddr,macSrcAddr,nwkSeq,nwkSrcAddr,nwkDstAddr,PAYLOAD\r\n" 
-  num2str((uint16_t)header->macFcf);
-  UART_SendChar(',');
-  num2str((uint16_t)header->macSeq);
-  UART_SendChar(',');
+	//	ochrana pred prijimanim duplicitnych ramcov
+	if (guard == header->macSeq)
+	{
+		//	ak sa sekvencne cislo ramca zhoduje s uz prijatym cislom ramca, tak sa nepokracuje so spracovanim
+		return;
+	}
+	else
+	{
+		//	ak prijmeme novy ramec, tak si ulozime jeho sekvencne cislo
+		guard = header->macSeq;
+	}
+	//	vypis informacii o ramci cez UART
+	//	"macFcf,macSeq,macDstPanId,macDstAddr,macSrcAddr,nwkSeq,nwkSrcAddr,nwkDstAddr,PAYLOAD\r\n" - takto vypada hlavicka vypovanych dat v CSV
+	num2str((uint16_t)header->macFcf);
+	UART_SendChar(',');
+	num2str((uint16_t)header->macSeq);
+	UART_SendChar(',');
 	num2str((uint16_t)header->macDstPanId);
 	UART_SendChar(',');
 	num2str((uint16_t)header->macDstAddr);
@@ -337,7 +345,10 @@ static void nwkRxHandleReceivedFrame(NwkFrame_t *frame)
 	UART_SendChar('\r');
 	UART_SendChar('\n');
 
-return;
+	return;
+/*            UPRAVENE V RAMCI PROJEKTU - KONIEC            */
+
+
 #ifndef NWK_ENABLE_SECURITY
   if (header->nwkFcf.security)
     return;
